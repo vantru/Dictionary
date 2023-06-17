@@ -1,0 +1,43 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package org.example;
+
+import java.awt.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ *
+ * @author tru
+ */
+public class DicManager {
+   public Map<String,String> GetDic() throws FileNotFoundException, IOException {
+        String url = "D:\\Tai lieu\\Java\\PA_01_DictionaryApp\\untitled\\src\\main\\java\\org\\example\\slang.txt";
+        FileReader fr=new FileReader(url); 
+        BufferedReader bf = new BufferedReader(fr);
+        Map<String,String> dic = new HashMap<String,String>();
+        int i;
+        while((i=bf.read())!=-1){
+            String line = bf.readLine();
+            String[] arrLine = line.split("`");
+            if(arrLine.length == 2){
+                String k = arrLine[0];
+                String v = arrLine[1];
+                dic.put(k, v);
+            }
+        }
+        bf.close();
+        fr.close();
+        return dic;
+   }
+   
+    
+}
