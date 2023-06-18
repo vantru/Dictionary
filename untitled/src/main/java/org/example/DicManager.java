@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,19 +20,26 @@ import java.util.Map;
  * @author tru
  */
 public class DicManager {
-   public Map<String,String> GetDic() throws FileNotFoundException, IOException {
+   public Map<String,ArrayList<String>> GetDic() throws FileNotFoundException, IOException {
         String url = "D:\\Tai lieu\\Java\\PA_01_DictionaryApp\\untitled\\src\\main\\java\\org\\example\\slang.txt";
         FileReader fr=new FileReader(url); 
         BufferedReader bf = new BufferedReader(fr);
-        Map<String,String> dic = new HashMap<String,String>();
+        HashMap<String, ArrayList<String>> dic = new HashMap<String,ArrayList<String>>();
+        
         int i;
         while((i=bf.read())!=-1){
             String line = bf.readLine();
             String[] arrLine = line.split("`");
             if(arrLine.length == 2){
                 String k = arrLine[0];
-                String v = arrLine[1];
-                dic.put(k, v);
+                String vs = arrLine[1];
+                String[] arrVS = vs.split("\\|");
+                if(arrVS.length == 0) continue;
+                ArrayList<String> arrs = new ArrayList<String>();
+                for (String arrVS1 : arrVS) {
+                    arrs.add(arrVS1);
+                }
+                dic.put(k.toLowerCase(), arrs);
             }
         }
         bf.close();
