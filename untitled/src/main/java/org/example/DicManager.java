@@ -37,9 +37,9 @@ public class DicManager {
                 if(arrVS.length == 0) continue;
                 ArrayList<String> arrs = new ArrayList<String>();
                 for (String arrVS1 : arrVS) {
-                    arrs.add(arrVS1);
+                    arrs.add(arrVS1.trim());
                 }
-                dic.put(k.toLowerCase(), arrs);
+                dic.put(k, arrs);
             }
         }
         bf.close();
