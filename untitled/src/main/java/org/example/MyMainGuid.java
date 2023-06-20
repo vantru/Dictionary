@@ -7,8 +7,11 @@ package org.example;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
 
 /**
  *
@@ -35,6 +39,8 @@ public class MyMainGuid extends JFrame{
     private  JLabel lbResult;
     private  JPanel panResult;
     private JList<String> definiList;
+    private  JScrollPane definiJScrollPane;
+    private  DefaultListModel<String> keyResult;
      MyMainGuid(Map<String, ArrayList<String>> dic) throws IOException{
        
         tfSearch = new JTextField(20);
@@ -53,14 +59,25 @@ public class MyMainGuid extends JFrame{
             @Override
             public void keyReleased(KeyEvent e) {
                // throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-               DefaultListModel<String> keyResult = new DefaultListModel<String>();
+               keyResult = new DefaultListModel<String>();
                String textS = tfSearch.getText();
                 for (Map.Entry<String, ArrayList<String>> entry : dic.entrySet()) {
-                    if (entry.getValue().contains(textS)) {
-                        keyResult.addElement(entry.getKey() + "`" + entry.getValue());
-                        System.out.println("Result");
-                        System.out.println(entry.getKey());
-                    }
+                    ArrayList<String> arrValueS = entry.getValue();
+                    for(String valueS : arrValueS){
+                        if (valueS.toLowerCase().contains(textS.toLowerCase())) {
+                            String vs = "";
+                          for(String v : arrValueS){
+                                vs += "|"+v;
+                          }
+                            keyResult.addElement(entry.getKey() + "`" + vs);
+                           // System.out.println("Result");
+                           // System.out.println(entry.getKey());
+                            break;
+                        }
+                    }                    
+                }
+                if (textS.isBlank()) {
+                    keyResult.clear();
                 }
                 changeSearch(keyResult);
             }
@@ -77,7 +94,7 @@ public class MyMainGuid extends JFrame{
         
         JPanel panSearch = new JPanel();
         panSearch.setBounds(0, 0, 800, 40);
-        panSearch.setBackground(Color.red);
+        panSearch.setBackground(Color.GRAY);
         
         panSearch.setAlignmentX(5);
         panSearch.setAlignmentY(5);
@@ -86,7 +103,7 @@ public class MyMainGuid extends JFrame{
       
         panHistory = new JPanel();
         panHistory.setBounds(510, 45, 300, 600);
-        panHistory.setBackground(Color.CYAN);
+        panHistory.setBackground(Color.GRAY);
        // Container con = new Container();
         
         panHistory.setLayout(new BoxLayout(panHistory, 1));
@@ -94,14 +111,14 @@ public class MyMainGuid extends JFrame{
      
         panResult = new JPanel();
         panResult.setBounds(0, 45, 400, 600);
-        panResult.setBackground(Color.BLUE);
+       // panResult.setBackground(Color.BLUE);
         panResult.setLayout(new BoxLayout(panResult, 1));
        // panHistory.add(new JLabel("a"));
         //result search here
         
       JPanel panAction = new JPanel();
         panAction.setBounds(410, 45, 100, 600);
-        panAction.setBackground(Color.BLUE);
+       // panAction.setBackground(Color.BLUE);
         panAction.setLayout(new BoxLayout(panAction, 1));
         
         JButton btnAdd = new JButton("Thêm");
@@ -145,7 +162,7 @@ public class MyMainGuid extends JFrame{
 
         JPanel panBottom = new JPanel();
         panBottom.setBounds(0, 650, 800, 100);
-        panBottom.setBackground(Color.YELLOW);
+       // panBottom.setBackground(Color.YELLOW);
            
         JFrame frame = new JFrame();
       //  frame.setTitle("dictionary");
@@ -162,10 +179,20 @@ public class MyMainGuid extends JFrame{
         definiList.setSelectedIndex(0);
        // definiList.setModel(colorsName);
         definiList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        definiList.setVisibleRowCount(10);
-         JScrollPane definiJScrollPane = new JScrollPane(definiList);
+        definiList.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                SeletedItem(definiList.getSelectedIndex());
+              //  al.actionPerformed(new ActionEvent(e.getSource(), e.getID(), "ENTER"));
+            }
+        }
+        });
+        
+      //  definiList.setVisibleRowCount(50);
+         definiJScrollPane = new JScrollPane(definiList);
          definiJScrollPane.setBounds(260, 27, 220, 100);
-         definiJScrollPane.setBackground(Color.red);
+        // definiJScrollPane.setBackground(Color.red);
         // definiJScrollPane.setComponentZOrder(definiJScrollPane, 100);
         
         JLayeredPane layered = new JLayeredPane();
@@ -175,7 +202,7 @@ public class MyMainGuid extends JFrame{
         frame.setVisible(true);
         frame.add(panSearch);
         layered.add(panResult, 0);
-        layered.add(definiJScrollPane, 0);
+        layered.add(definiJScrollPane, 1);
        // frame.add(panResult);
         frame.add(panAction);
         frame.add(panHistory);
@@ -186,6 +213,14 @@ public class MyMainGuid extends JFrame{
    public void SetDefinition(){
        
    }
+   public void SeletedItem(int index){
+      var itemSeleted = keyResult.get(index);
+       String[] arrLine = itemSeleted.split("`");
+       String k = arrLine[0];
+       DicManager dicManager = new DicManager();
+       var valueS = dicManager.GetValueArray(k, arrLine[1]);
+       ShowResult(valueS);
+   }
     public void searchAction(Map<String, ArrayList<String>> dic) {
         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         panHistory.add(new JLabel(textvalue));
@@ -193,19 +228,29 @@ public class MyMainGuid extends JFrame{
         ArrayList<String> resultDefault = new ArrayList<String>();
         resultDefault.add("No content");
         ArrayList<String> dataresult = dic.get(textvalue.toUpperCase());
-         panResult.removeAll();
+        ShowResult(dataresult);
+    }
+    private void ShowResult(ArrayList<String> dataresult){
+          panResult.removeAll();
+          panResult.repaint();
         if(dataresult != null) {
-          
            for(String aString : dataresult){
                 panResult.add(new JLabel(aString));
-           panResult.revalidate();
            }
         }
         else{
             panResult.add(new JLabel("No content"));
         }
+        panResult.revalidate();
+        
     }
     public void changeSearch(DefaultListModel<String> arrMathList){
+        if(arrMathList.isEmpty()){
+            definiJScrollPane.setVisible(false);
+        }
+        else {
+            definiJScrollPane.setVisible(true);
+        }
         definiList.setModel(arrMathList);
     }
     public void addAction() {

@@ -31,21 +31,26 @@ public class DicManager {
             String line = bf.readLine();
             String[] arrLine = line.split("`");
             if(arrLine.length == 2){
-                String k = arrLine[0];
-                String vs = arrLine[1];
-                String[] arrVS = vs.split("\\|");
-                if(arrVS.length == 0) continue;
-                ArrayList<String> arrs = new ArrayList<String>();
-                for (String arrVS1 : arrVS) {
-                    arrs.add(arrVS1.trim());
-                }
+                 String k = arrLine[0];
+                var arrs = GetValueArray(k, arrLine[1]);
                 dic.put(k, arrs);
             }
+           
         }
         bf.close();
         fr.close();
         return dic;
    }
-   
+   public ArrayList<String> GetValueArray(String k,String v){
+       ArrayList<String> arrs = new ArrayList<String>();
+            String[] arrVS = v.split("\\|");
+            if(arrVS.length == 0){
+                return arrs;
+            }
+            for (String arrVS1 : arrVS) {
+                arrs.add(arrVS1.trim());
+            }
+       return arrs;
+   }
     
 }
