@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -164,6 +166,16 @@ public class MyMainGuid extends JFrame{
           btnReset.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
+                int dialogResult = JOptionPane.showConfirmDialog (null, "Bạn muốn reset?","Warning",JOptionPane.YES_NO_OPTION);
+            if(dialogResult == JOptionPane.YES_OPTION){
+                DicManager dimanagManager = new DicManager();
+                    try {
+                        slangWordList = dimanagManager.GetDic();
+                    } catch (IOException ex) {
+                        Logger.getLogger(MyMainGuid.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+            }
+            System.out.println("reset thành công");
                 resetAction();
             }
         });
@@ -286,7 +298,7 @@ public class MyMainGuid extends JFrame{
             System.out.println("add new slang");
             if (slangWordList.keySet().contains(slang)) {
                 String[] options = {"Duplicate","Overwrite", "Cancel"}; 
-                int result = JOptionPane.showOptionDialog(null, "This word already exists. Do you want to duplicate it?", "Message: " + "Add new slang word", JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,options, options[0]);
+                int result = JOptionPane.showOptionDialog(null, "Từ tồn tai. Bạn muốn duplicate từ đó?", "Message: " + "thêm từ", JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,options, options[0]);
                 if (result == JOptionPane.YES_OPTION) {
                      System.out.println("Duplicate word");
                     for (Map.Entry<String, ArrayList<String>> entry : slangWordList.entrySet()) {
@@ -316,9 +328,29 @@ public class MyMainGuid extends JFrame{
         }
     }
     public void editAction() {
-//         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-//                panHistory.add(new JLabel(textvalue));
-//                panHistory.revalidate();
+         String editslang = createSlangTextField.getText();
+        String editdefine = createDefineTextField.getText();
+        System.out.println("Sửa từ");
+        if (editslang.isEmpty() || editslang.isBlank()) {
+            JOptionPane.showMessageDialog(null,
+                    "Chọn từ để sửa");
+            return;
+        }
+        if (slangWordList.keySet().contains(editslang)) {
+            for (Map.Entry<String, ArrayList<String>> entry : slangWordList.entrySet()) {
+                if (entry.getKey().contains(editslang)) {
+                    entry.getValue().clear();
+                    entry.getValue().add(editdefine);
+                    break;
+                }
+            }
+            JOptionPane.showMessageDialog(null,
+                    "Sừa hoàn thành");
+            System.out.println("edit  slang comppleted");
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "Từ không tồn tại");
+        }
     }
     public void deleteAction() {
         String deleteSlang = createSlangTextField.getText();
@@ -339,8 +371,6 @@ public class MyMainGuid extends JFrame{
         }
     }
       public void resetAction() {
-//         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-//                panHistory.add(new JLabel(textvalue));
-//                panHistory.revalidate();
+            
     }
 }
