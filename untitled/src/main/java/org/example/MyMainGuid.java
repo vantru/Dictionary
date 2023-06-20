@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -23,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -41,8 +43,11 @@ public class MyMainGuid extends JFrame{
     private JList<String> definiList;
     private  JScrollPane definiJScrollPane;
     private  DefaultListModel<String> keyResult;
+    JTextField createSlangTextField;
+    JTextField createDefineTextField;
+  Map<String, ArrayList<String>>  slangWordList;
      MyMainGuid(Map<String, ArrayList<String>> dic) throws IOException{
-       
+       slangWordList = dic;
         tfSearch = new JTextField(20);
         tfSearch.setBounds(0, 0, 100, 20);
         tfSearch.addKeyListener(new KeyListener(){
@@ -103,14 +108,14 @@ public class MyMainGuid extends JFrame{
       
         panHistory = new JPanel();
         panHistory.setBounds(510, 45, 300, 600);
-        panHistory.setBackground(Color.GRAY);
+        panHistory.setBackground(Color.LIGHT_GRAY);
        // Container con = new Container();
         
         panHistory.setLayout(new BoxLayout(panHistory, 1));
         //panHistory.add(new JLabel("a"));
      
         panResult = new JPanel();
-        panResult.setBounds(0, 45, 400, 600);
+        panResult.setBounds(0, 45, 250, 600);
        // panResult.setBackground(Color.BLUE);
         panResult.setLayout(new BoxLayout(panResult, 1));
        // panHistory.add(new JLabel("a"));
@@ -120,7 +125,14 @@ public class MyMainGuid extends JFrame{
         panAction.setBounds(410, 45, 100, 600);
        // panAction.setBackground(Color.BLUE);
         panAction.setLayout(new BoxLayout(panAction, 1));
-        
+        JLabel lbKey = new JLabel("Khóa");
+        lbKey.setBounds(0, 20, 70, 20);
+        createSlangTextField = new JTextField("", 20);
+        createSlangTextField.setBounds(0, 40, 70, 20);
+        JLabel lbValue = new JLabel("Giá trị");
+         lbValue.setBounds(0, 60, 70, 20);
+        createDefineTextField = new JTextField("", 20);
+        createDefineTextField.setBounds(0, 80, 70, 20);
         JButton btnAdd = new JButton("Thêm");
         btnAdd.setBounds(0, 100, 70, 20);
         btnAdd.addActionListener(new ActionListener(){
@@ -129,7 +141,7 @@ public class MyMainGuid extends JFrame{
                 addAction();
             }
         });
-        panAction.add(btnAdd);
+       
          JButton btnEdit = new JButton("Sửa");
         btnEdit.setBounds(0, 120, 70, 20);
           btnEdit.addActionListener(new ActionListener(){
@@ -138,7 +150,7 @@ public class MyMainGuid extends JFrame{
                 editAction();
             }
         });
-        panAction.add(btnEdit);
+        
         JButton btnDel = new JButton("Xóa");
         btnDel.setBounds(0, 140, 70, 20);
           btnDel.addActionListener(new ActionListener(){
@@ -155,6 +167,13 @@ public class MyMainGuid extends JFrame{
                 resetAction();
             }
         });
+          panAction.add(lbKey);
+          panAction.add(lbValue);
+
+          panAction.add(createSlangTextField);
+        panAction.add(createDefineTextField);
+         panAction.add(btnAdd);
+        panAction.add(btnEdit);
         panAction.add(btnDel);
         panAction.add(btnReset);
         panAction.setLayout(null);
@@ -192,6 +211,7 @@ public class MyMainGuid extends JFrame{
       //  definiList.setVisibleRowCount(50);
          definiJScrollPane = new JScrollPane(definiList);
          definiJScrollPane.setBounds(260, 27, 220, 100);
+         definiJScrollPane.setVisible(false);
         // definiJScrollPane.setBackground(Color.red);
         // definiJScrollPane.setComponentZOrder(definiJScrollPane, 100);
         
@@ -219,7 +239,13 @@ public class MyMainGuid extends JFrame{
        String k = arrLine[0];
        DicManager dicManager = new DicManager();
        var valueS = dicManager.GetValueArray(k, arrLine[1]);
+       createSlangTextField.setText(k);
+       createDefineTextField.setText(arrLine[1]);
+       definiJScrollPane.setVisible(false);
+       panHistory.add(new JLabel(k));
+       panHistory.revalidate();
        ShowResult(valueS);
+       
    }
     public void searchAction(Map<String, ArrayList<String>> dic) {
         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -254,9 +280,40 @@ public class MyMainGuid extends JFrame{
         definiList.setModel(arrMathList);
     }
     public void addAction() {
-//         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-//                panHistory.add(new JLabel(textvalue));
-//                panHistory.revalidate();
+        String slang = createSlangTextField.getText();
+        String define = createDefineTextField.getText();
+        if (slang != "" && define != "") {
+            System.out.println("add new slang");
+            if (slangWordList.keySet().contains(slang)) {
+                String[] options = {"Duplicate","Overwrite", "Cancel"}; 
+                int result = JOptionPane.showOptionDialog(null, "This word already exists. Do you want to duplicate it?", "Message: " + "Add new slang word", JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,options, options[0]);
+                if (result == JOptionPane.YES_OPTION) {
+                     System.out.println("Duplicate word");
+                    for (Map.Entry<String, ArrayList<String>> entry : slangWordList.entrySet()) {
+                        if (entry.getKey().contains(slang)) {
+                            entry.getValue().add(define);
+                            break;
+                        }
+                    }
+                } else if (result == JOptionPane.NO_OPTION) {
+                    System.out.println("Overwrite word");
+                    for (Map.Entry<String, ArrayList<String>> entry : slangWordList.entrySet()) {
+                        if (entry.getKey().contains(slang)) {
+                            entry.getValue().clear();
+                            entry.getValue().add(define);
+                            break;
+                        }
+                    }
+
+                    Set<String> keySet = slangWordList.keySet();
+                    for (String key : keySet) {
+                        System.out.println(key + " " + slangWordList.get(key));
+                    }
+                }else{
+                            //To do
+                         }
+            }
+        }
     }
     public void editAction() {
 //         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -264,9 +321,22 @@ public class MyMainGuid extends JFrame{
 //                panHistory.revalidate();
     }
     public void deleteAction() {
-//         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-//                panHistory.add(new JLabel(textvalue));
-//                panHistory.revalidate();
+        String deleteSlang = createSlangTextField.getText();
+        if (deleteSlang.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "chọn một từ để xóa?");
+            return;
+        }
+         System.out.println("delete  slang: " + deleteSlang);
+        if (slangWordList.keySet().contains(deleteSlang.trim())) {
+            int dialogResult = JOptionPane.showConfirmDialog (null, "Bạn muốn xóa?","Warning",JOptionPane.YES_NO_OPTION);
+            if(dialogResult == JOptionPane.YES_OPTION){
+              slangWordList.remove(deleteSlang);
+            }
+            System.out.println("xóa thành công");
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "Từ không tồn tại");
+        }
     }
       public void resetAction() {
 //         String textvalue = tfSearch.getText(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
